@@ -60,6 +60,10 @@ addEventListener('keydown', ({key}) => {
         case 'ArrowDown':
             console.log('down')
             break
+        case ' ':
+            console.log('space')
+            break
+
 
     }
 })
