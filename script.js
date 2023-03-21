@@ -48,11 +48,18 @@ animate()
 
 addEventListener('keydown', ({key}) => {
     switch (key) {
-        case 'a':
+        case 'ArrowLeft':
             console.log('left')
             break
-        case 'b':
-            console.log('righ')
+        case 'ArrowRight':
+            console.log('right')
             break
+        case 'ArrowUp':
+            console.log('up')
+            break
+        case 'ArrowDown':
+            console.log('down')
+            break
+
     }
 })
