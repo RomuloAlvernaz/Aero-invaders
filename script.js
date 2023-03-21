@@ -14,15 +14,28 @@ class Player {
             x: 0,
             y: 0
         }
+
+        const image = new Image()
+        image.src = './Imagens/aircraft.png'
+        
+        this.image = image
         this.width = 100
         this.height = 100
     }
 
     draw() {
-        c.fillStyle = 'red'
-        c.fillRect(this.position.x, this.position.y, this.width, this.height)
+        //c.fillStyle = 'red'
+        //c.fillRect(this.position.x, this.position.y, this.width, this.height)
+        c.drawImage(this.image, this.position.x, this.position.y)
     }
 }
 
 const player = new Player()
 player.draw()
+
+function animate() {
+    requestAnimationFrame(animate)
+    player.draw() 
+}
+
+animate() 
