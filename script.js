@@ -1,3 +1,4 @@
+const pontosEl = document.querySelector('#pontosEl');
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
@@ -236,10 +237,13 @@ let frames = 0;
 let randomInterval = Math.floor(Math.random() * 500 + 500);
 let game = {
     over: false, 
-    active: false
+    active: true
 };
 
+let pontos = 0
+
 function animate() {
+    if (!game.active) return
     let backgroundImage = new Image();
   backgroundImage.src = './Imagens/space.png';
   function drawBackground() {
@@ -260,8 +264,13 @@ function animate() {
             console.log('Você perdeu!')
             player.opacity = 0;
             game.over = true;
+
+            setTimeout(() => {
+                game.active = false;
+            }, 1000)
         }  
     });
+            
 
     projectiles.forEach((projectile, index) => {
 
@@ -299,6 +308,10 @@ function animate() {
                         const projectileFound = projectiles.find(projectile2 => projectile2 === projectile)
 
                         if (invaderFound && projectileFound) {
+                            pontos += 100 
+                            console.log(pontos)
+                            pontosEl.innerHTML = pontos
+
                         grid.invaders.splice(i, 1)
                         projectiles.splice(j, 1)
 
