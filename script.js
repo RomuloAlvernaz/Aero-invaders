@@ -13,6 +13,7 @@ class Player {
         };
 
         this.rotation = 0;
+        this.opacity = 1;
 
         const image = new Image();
         image.src = './Imagens/aircraft.png';
@@ -32,7 +33,8 @@ class Player {
         //c.fillStyle = 'red'
         //c.fillRect(this.position.x, this.position.y, this.width, this.height)
 
-        c.save(); 
+        c.save();
+        c.globalAlpha = this.opacity 
         c.translate(
             player.position.x + player.width / 2, 
             player.position.y + player.width / 2
@@ -58,10 +60,10 @@ class Player {
     update () {
         if (this.image) {
             this.draw()
-            this.position.x += this.velocity.x
-        };
-    };
-};
+            this.position.x += this.velocity.x; 
+        }
+    }
+}
 
 class Projectile {
     constructor({position, velocity}){
@@ -232,6 +234,10 @@ const keys = {
 
 let frames = 0;
 let randomInterval = Math.floor(Math.random() * 500 + 500);
+let game = {
+    over: false, 
+    active: false
+};
 
 function animate() {
     let backgroundImage = new Image();
@@ -252,7 +258,9 @@ function animate() {
 
         if(InvaderProjectile.position.y + InvaderProjectile.height >= player.position.y && InvaderProjectile.position.x + InvaderProjectile.width >= player.position.x && InvaderProjectile.position.x <= player.position.x + player.width) {
             console.log('Você perdeu!')
-        }
+            player.opacity = 0;
+            game.over = true;
+        }  
     });
 
     projectiles.forEach((projectile, index) => {
@@ -260,9 +268,9 @@ function animate() {
         if(projectile.position.y + projectile.radius <= 0) {
             setTimeout(() => {
                 projectiles.splice(index, 1)
-            }, 0)
+            }, 0);
         } else {
-            projectile.update()
+            projectile.update(); 
         }
     }); 
 
@@ -334,14 +342,15 @@ function animate() {
 animate() 
 
 addEventListener('keydown', ({key}) => {
+    if (game.over) return 
     switch (key) {
         case 'ArrowLeft':
             //console.log('left')
-            keys.ArrowLeft.pressed = true
+            keys.ArrowLeft.pressed = true;
             break
         case 'ArrowRight':
             //console.log('right')
-            keys.ArrowRight.pressed = true
+            keys.ArrowRight.pressed = true;
             break
         case ' ':
             //console.log('space')
@@ -365,11 +374,11 @@ addEventListener('keyup', ({key}) => {
     switch (key) {
         case 'ArrowLeft':
             //console.log('left')
-            keys.ArrowLeft.pressed = false
+            keys.ArrowLeft.pressed = false;
             break
         case 'ArrowRight':
             //console.log('right')
-            keys.ArrowRight.pressed = false
+            keys.ArrowRight.pressed = false;
         case ' ':
             //console.log('space')
             break
