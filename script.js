@@ -342,10 +342,10 @@ function animate() {
         player.rotation = 0;
     }
 
-    console.log(frames);
     if (frames % randomInterval === 0) {
-        grids.push(new Grid());
+        grids.push(new Grid())
         randomInterval = Math.floor(Math.random() * 500 + 500);
+        console.log(randomInterval)
         frames = 0;
     }
 
