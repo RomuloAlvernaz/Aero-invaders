@@ -1,8 +1,9 @@
-const canvas = document.querySelector('canvas')
-const c = canvas.getContext('2d')
+const pontosEl = document.querySelector('#pontosEl');
+const canvas = document.querySelector('canvas');
+const c = canvas.getContext('2d');
 
-canvas.width = window.innerWidth
-canvas.height = window.innerHeight
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 class Player {
     constructor() {
@@ -10,21 +11,22 @@ class Player {
         this.velocity = {
             x: 0,
             y: 0
-        }
+        };
 
-        this.rotation = 0
+        this.rotation = 0;
+        this.opacity = 1;
 
-        const image = new Image()
-        image.src = './Imagens/aircraft.png'
+        const image = new Image();
+        image.src = './Imagens/aircraft.png';
         image.onload = () => {
-            const scale = 0.15
-            this.image = image
-            this.width = image.width * scale
-            this.height = image.height * scale
+            const scale = 0.15;
+            this.image = image;
+            this.width = image.width * scale;
+            this.height = image.height * scale;
             this.position = {
                 x: canvas.width / 2 - this.width / 2,
                 y: canvas.height - this.height - 20
-            }
+            };
         }
     }
 
@@ -32,18 +34,19 @@ class Player {
         //c.fillStyle = 'red'
         //c.fillRect(this.position.x, this.position.y, this.width, this.height)
 
-        c.save()
+        c.save();
+        c.globalAlpha = this.opacity 
         c.translate(
             player.position.x + player.width / 2, 
             player.position.y + player.width / 2
-        )
+        );
         
-        c.rotate(this.rotation)
+        c.rotate(this.rotation);
 
         c.translate(
             -player.position.x - player.width / 2, 
             -player.position.y - player.width / 2
-        )
+        );
 
         c.drawImage(
             this.image, 
@@ -51,60 +54,60 @@ class Player {
             this.position.y, 
             this.width, 
             this.height
-        )
-        c.restore()
+        );
+        c.restore();
     }
 
     update () {
         if (this.image) {
             this.draw()
-            this.position.x += this.velocity.x
-        }  
+            this.position.x += this.velocity.x; 
+        }
     }
 }
 
 class Projectile {
     constructor({position, velocity}){
-        this.position = position
-        this.velocity = velocity 
+        this.position = position;
+        this.velocity = velocity;
 
-        this.radius = 4
+        this.radius = 4;
     }
 
     draw() {
-        c.beginPath()
-        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-        c.fillStyle = 'red'
-        c.fill()
-        c.closePath()
+        c.beginPath();
+        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+        c.fillStyle = 'red';
+        c.fill();
+        c.closePath();
     }
 
     update() {
-        this.draw()
-        this.position.x += this.velocity.x
-        this.position.y += this.velocity.y
+        this.draw();
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
     }
 }
 
 class InvaderProjectile {
     constructor({position, velocity}){
-        this.position = position
-        this.velocity = velocity 
+        this.position = position;
+        this.velocity = velocity;
 
-        this.width = 3
-        this.height = 10
+        this.width = 3;
+        this.height = 10;
 
     }
 
     draw() {
-        c.fillStyle = 'white'
-        c.fillRect(this.position.x, this.position.y, this.width, this.height)
+        c.fillStyle = 'white';
+        c.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
 
     update() {
-        this.draw()
-        this.position.x += this.velocity.x
-        this.position.y += this.velocity.y
+        this.draw();
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
     }
 }
 
@@ -114,20 +117,20 @@ class Invader {
         this.velocity = {
             x: 0,
             y: 0
-        }
+        };
 
 
-        const image = new Image()
-        image.src = './Imagens/invaders.png'
+        const image = new Image();
+        image.src = './Imagens/invaders.png';
         image.onload = () => {
-            const scale = 1
-            this.image = image
-            this.width = image.width * scale
-            this.height = image.height * scale
+            const scale = 1;
+            this.image = image;
+            this.width = image.width * scale;
+            this.height = image.height * scale;
             this.position = {
                 x: position.x,
                 y: position.y
-            }
+            };
         }
     }
 
@@ -141,14 +144,14 @@ class Invader {
             this.position.y, 
             this.width, 
             this.height
-        )
+        );
     }
 
     update ({velocity}) {
         if (this.image) {
-            this.draw()
-            this.position.x += velocity.x
-            this.position.y += velocity.y
+            this.draw();
+            this.position.x += velocity.x;
+            this.position.y += velocity.y;
         }  
     }
 
@@ -162,28 +165,28 @@ class Invader {
                 x: 0,
                 y: 5
             }
-        }))
-    }
-}
+        }));
+    };
+};
 
 class Grid {
     constructor() {
         this.position = {
             x: 0,
             y: 0
-        }
+        };
 
         this.velocity = {
             x: 3,
             y: 0
-        }
+        };
 
-        this.invaders = []
+        this.invaders = [];
 
-        const columns = Math.floor(Math.random() * 10 + 5)
-        const rows = Math.floor(Math.random() * 5 + 2)
+        const columns = Math.floor(Math.random() * 10 + 5);
+        const rows = Math.floor(Math.random() * 5 + 2);
 
-        this.width = columns * 30
+        this.width = columns * 30;
 
         for (let x = 0; x < columns; x++) {
             for (let y = 0; y < rows; y++) {
@@ -197,26 +200,26 @@ class Grid {
                 )
             }
         }
-        console.log(this.invaders)
-    }
+        console.log(this.invaders);
+    };
 
     update() {
-        this.position.x += this.velocity.x
-        this.position.y += this.velocity.y
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
 
-        this.velocity.y = 0
+        this.velocity.y = 0;
 
         if(this.position.x + this.width >= canvas.width || this.position.x <= 0) {
-            this.velocity.x = -this.velocity.x
-            this.velocity.y = 30
-        }
+            this.velocity.x = -this.velocity.x;
+            this.velocity.y = 30;
+        };
     }
 }
 
-const player = new Player()
-const projectiles = []
-const grids = []
-const InvaderProjectiles = []
+const player = new Player();
+const projectiles = [];
+const grids = [];
+const InvaderProjectiles = [];
 
 const keys = {
     ArrowLeft: {
@@ -228,38 +231,57 @@ const keys = {
     space: {
         pressed: false
     }
-}
+};
 
-let frames = 0 
-let randomInterval = Math.floor(Math.random() * 500 + 500)
+let frames = 0;
+let randomInterval = Math.floor(Math.random() * 500 + 500);
+let game = {
+    over: false, 
+    active: true
+};
+
+let pontos = 0
 
 function animate() {
-    requestAnimationFrame(animate)
-    c.fillStyle = 'black'
-    c.fillRect(0, 0, canvas.width, canvas.height)
-    player.update()
+    if (!game.active) return
+    let backgroundImage = new Image();
+  backgroundImage.src = './Imagens/space.png';
+  function drawBackground() {
+    c.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+  }
+  requestAnimationFrame(animate);
+  drawBackground();
+  c.clearRect(0, 0, canvas.width, canvas.height);
+    player.update();
     InvaderProjectiles.forEach((InvaderProjectile, index) => {
         if(InvaderProjectile.position.y + InvaderProjectile.height >= canvas.height) {
             setTimeout(() => {
                 InvaderProjectiles.splice(index, 1)
-            }, 0)
-        } else InvaderProjectile.update()
+            }, 0);
+        } else InvaderProjectile.update();
 
         if(InvaderProjectile.position.y + InvaderProjectile.height >= player.position.y && InvaderProjectile.position.x + InvaderProjectile.width >= player.position.x && InvaderProjectile.position.x <= player.position.x + player.width) {
             console.log('Você perdeu!')
-        }
-    })
+            player.opacity = 0;
+            game.over = true;
+
+            setTimeout(() => {
+                game.active = false;
+            }, 1000)
+        }  
+    });
+            
 
     projectiles.forEach((projectile, index) => {
 
         if(projectile.position.y + projectile.radius <= 0) {
             setTimeout(() => {
                 projectiles.splice(index, 1)
-            }, 0)
+            }, 0);
         } else {
-            projectile.update()
+            projectile.update(); 
         }
-    }) 
+    }); 
 
     grids.forEach((grid, gridIndex) => {
         grid.update()
@@ -268,7 +290,7 @@ function animate() {
             grid.invaders[Math.floor(Math.random() * grid.invaders.length)].shoot(
                 InvaderProjectiles
                 )
-        }
+        };
 
         grid.invaders.forEach((invader, i) => {
             invader.update({velocity: grid.velocity})
@@ -286,6 +308,10 @@ function animate() {
                         const projectileFound = projectiles.find(projectile2 => projectile2 === projectile)
 
                         if (invaderFound && projectileFound) {
+                            pontos += 100 
+                            console.log(pontos)
+                            pontosEl.innerHTML = pontos
+
                         grid.invaders.splice(i, 1)
                         projectiles.splice(j, 1)
 
@@ -303,40 +329,41 @@ function animate() {
                 }
             } )
         })
-    })
+    });
 
     if (keys.ArrowLeft.pressed && player.position.x >= 0) {
-        player.velocity.x = -7
-        player.rotation = -0.15
+        player.velocity.x = -7;
+        player.rotation = -0.15;
     } else if (keys.ArrowRight.pressed && player.position.x +player.width <= canvas.width) {
-        player.velocity.x = 7
-        player.rotation = 0.15
+        player.velocity.x = 7;
+        player.rotation = 0.15;
     }else {
-        player.velocity.x = 0
-        player.rotation = 0
+        player.velocity.x = 0;
+        player.rotation = 0;
     }
 
-    console.log(frames)
     if (frames % randomInterval === 0) {
         grids.push(new Grid())
-        randomInterval = Math.floor(Math.random() * 500 + 500)
-        frames = 0
+        randomInterval = Math.floor(Math.random() * 500 + 500);
+        console.log(randomInterval)
+        frames = 0;
     }
 
     frames++
-}
+};
 
 animate() 
 
 addEventListener('keydown', ({key}) => {
+    if (game.over) return 
     switch (key) {
         case 'ArrowLeft':
             //console.log('left')
-            keys.ArrowLeft.pressed = true
+            keys.ArrowLeft.pressed = true;
             break
         case 'ArrowRight':
             //console.log('right')
-            keys.ArrowRight.pressed = true
+            keys.ArrowRight.pressed = true;
             break
         case ' ':
             //console.log('space')
@@ -347,26 +374,26 @@ addEventListener('keydown', ({key}) => {
                 },
                 velocity: {
                     x: 0,
-                    y: -10 
+                    y: -10
                 }
             }))
 
             //console.log(projectiles)
             break
     }
-})
+});
 
 addEventListener('keyup', ({key}) => {
     switch (key) {
         case 'ArrowLeft':
             //console.log('left')
-            keys.ArrowLeft.pressed = false
+            keys.ArrowLeft.pressed = false;
             break
         case 'ArrowRight':
             //console.log('right')
-            keys.ArrowRight.pressed = false
+            keys.ArrowRight.pressed = false;
         case ' ':
             //console.log('space')
             break
     }
-})
+});
