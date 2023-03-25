@@ -3,7 +3,7 @@ const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
 canvas.width = 1024;
-canvas.height = 576;
+canvas.height = 576;  
 
 class Player {
     constructor() {
@@ -399,6 +399,24 @@ function animate() {
                             pontos += 100 
                             console.log(pontos)
                             pontosEl.innerHTML = pontos
+
+                            const pontosLabel = document.createElement('label');
+                            pontosLabel.innerHTML = 100;
+                            pontosLabel.style.position = 'absolute';
+                            pontosLabel.style.color = 'white';
+                            pontosLabel.style.top = invader.position.y + 'px'; 
+                            pontosLabel.style.left = invader.position.x + 'px';
+                            pontosLabel.style.userSelect = 'none'
+                            document.querySelector('#parentDiv').appendChild(pontosLabel);
+                            
+                            gsap.to(pontosLabel, {
+                                opacity: 0, 
+                                y: -30,
+                                duration: 0.75,
+                                onComplete: () => {
+                                    document.querySelector('#parentDiv').removeChild(pontosLabel)
+                                }
+                            })
 
                             createParticles({
                                 object: invader,
