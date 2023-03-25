@@ -90,13 +90,14 @@ class Projectile {
 }
 
 class Particle {
-    constructor({position, velocity, radius, color}){
+    constructor({position, velocity, radius, color, fades}){
         this.position = position;
         this.velocity = velocity;
 
         this.radius = radius;
         this.color = color;
-        this.opacity = 1; 
+        this.opacity = 1;
+        this.fades = fades
     }
 
     draw() {
@@ -114,6 +115,7 @@ class Particle {
         this.draw();
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
+        if (this.fades)
         this.opacity -= 0.01;
     }
 }
@@ -272,7 +274,23 @@ let game = {
 
 let pontos = 0
 
-function createParticles({object, color}) {
+for (let i = 0; i< 100; i++) {  
+    particles.push(new Particle({
+        position: {
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+        }, 
+        velocity: {
+            x: 0,
+            y: 0.3
+        },
+        radius: Math.random() * 2,
+        color: 'white'
+    })
+    )
+};
+
+function createParticles({object, color, fades}) {
     for (let i = 0; i< 15; i++) {  
         particles.push(new Particle({
             position: {
@@ -284,7 +302,8 @@ function createParticles({object, color}) {
                 y: (Math.random() - 0.5) * 2
             },
             radius: Math.random() * 3,
-            color: color || '#27d074'
+            color: color || '#27d074',
+            fades
         })
         )
     };    
@@ -292,16 +311,17 @@ function createParticles({object, color}) {
 
 function animate() {
     if (!game.active) return
-    let backgroundImage = new Image();
-  backgroundImage.src = './Imagens/space.png';
-  function drawBackground() {
-    c.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-  }
-  requestAnimationFrame(animate);
-  drawBackground();
-  c.clearRect(0, 0, canvas.width, canvas.height);
+  requestAnimationFrame(animate)
+  c.fillStyle = 'black'; 
+  c.fillRect(0, 0, canvas.width, canvas.height)
     player.update();
     particles.forEach((particle, i) => {
+
+        if (particle.position.y - particle.radius >= canvas.height) {
+            particle.position.x = Math.random() * canvas.width
+            particle.position.y = - particle.radius
+        }
+
         if (particle.opacity <= 0) {
             setTimeout(() => {
                 particles.splice(i, 1)
@@ -320,16 +340,22 @@ function animate() {
 
         if(InvaderProjectile.position.y + InvaderProjectile.height >= player.position.y && InvaderProjectile.position.x + InvaderProjectile.width >= player.position.x && InvaderProjectile.position.x <= player.position.x + player.width) {
             console.log('Você perdeu!')
-            createParticles({
-                object: player,
-                color: '#'
-            })
-            player.opacity = 0;
-            game.over = true;
+
+            setTimeout(() => {
+               InvaderProjectiles.splice(index, 1)
+               player.opacity = 0;
+               game.over = true;   
+            }, 0)
 
             setTimeout(() => {
                 game.active = false;
             }, 2000)
+
+            createParticles({
+                object: player,
+                color: '#c4c6c9',
+                fades: true
+            })
         }  
     });
             
@@ -375,7 +401,8 @@ function animate() {
                             pontosEl.innerHTML = pontos
 
                             createParticles({
-                                object: invader
+                                object: invader,
+                                fades: true
                             })
 
                         grid.invaders.splice(i, 1)
