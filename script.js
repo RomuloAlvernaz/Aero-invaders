@@ -31,8 +31,6 @@ class Player {
     }
 
     draw() {
-        //c.fillStyle = 'red'
-        //c.fillRect(this.position.x, this.position.y, this.width, this.height)
 
         c.save();
         c.globalAlpha = this.opacity 
@@ -166,8 +164,7 @@ class Invader {
     }
 
     draw() {
-        //c.fillStyle = 'red'
-        //c.fillRect(this.position.x, this.position.y, this.width, this.height)
+        
 
         c.drawImage(
             this.image, 
@@ -231,7 +228,7 @@ class Grid {
                 )
             }
         }
-        console.log(this.invaders);
+        
     };
 
     update() {
@@ -308,6 +305,31 @@ function createParticles({object, color, fades}) {
         )
     };    
 }
+
+function rectangularCollision({rectangle1,rectangle2}) {
+    return (rectangle1.position.y + rectangle1.height >= rectangle2.position.y && rectangle1.position.x + rectangle1.width >= rectangle2.position.x && rectangle1.position.x <= rectangle2.position.x + rectangle2.width)
+}; 
+
+function endGame() {
+    console.log('Você perdeu!')
+
+            setTimeout(() => {
+               
+               player.opacity = 0;
+               game.over = true;   
+            }, 0)
+
+            setTimeout(() => {
+                game.active = false;
+            }, 2000)
+
+            createParticles({
+                object: player,
+                color: '#c4c6c9',
+                fades: true
+            })
+}; 
+
 let spawnBuffer = 500 
 function animate() {
     if (!game.active) return
@@ -338,24 +360,12 @@ function animate() {
             }, 0);
         } else InvaderProjectile.update();
 
-        if(InvaderProjectile.position.y + InvaderProjectile.height >= player.position.y && InvaderProjectile.position.x + InvaderProjectile.width >= player.position.x && InvaderProjectile.position.x <= player.position.x + player.width) {
-            console.log('Você perdeu!')
-
-            setTimeout(() => {
-               InvaderProjectiles.splice(index, 1)
-               player.opacity = 0;
-               game.over = true;   
-            }, 0)
-
-            setTimeout(() => {
-                game.active = false;
-            }, 2000)
-
-            createParticles({
-                object: player,
-                color: '#c4c6c9',
-                fades: true
-            })
+        if(rectangularCollision({
+            rectangle1: InvaderProjectile,
+            rectangle2: player
+        })) {
+            InvaderProjectiles.splice(index, 1)
+            endGame()
         }  
     });
             
@@ -377,11 +387,18 @@ function animate() {
         if (frames % 100 === 0 && grid.invaders.length > 0) {
             grid.invaders[Math.floor(Math.random() * grid.invaders.length)].shoot(
                 InvaderProjectiles
-                )
+            )
         };
 
         grid.invaders.forEach((invader, i) => {
             invader.update({velocity: grid.velocity})
+
+            if(rectangularCollision({
+                rectangle1: invader,
+                rectangle2: player
+            }) && !game.over
+            ) 
+                endGame()
 
             projectiles.forEach((projectile, j) => {
                 if (projectile.position.y - projectile.radius <= invader.position.y + invader.height && 
@@ -437,9 +454,9 @@ function animate() {
                         }
                         }
                     }, 0)
-                }
-            } )
-        })
+                } 
+            } ); 
+        }) 
     });
 
     if (keys.ArrowLeft.pressed && player.position.x >= 0) {
@@ -471,15 +488,15 @@ addEventListener('keydown', ({key}) => {
     if (game.over) return 
     switch (key) {
         case 'ArrowLeft':
-            //console.log('left')
+            
             keys.ArrowLeft.pressed = true;
             break
         case 'ArrowRight':
-            //console.log('right')
+            
             keys.ArrowRight.pressed = true;
             break
         case ' ':
-            //console.log('space')
+            
             projectiles.push(new Projectile({
                 position: {
                     x: player.position.x + player.width / 2,
@@ -491,7 +508,7 @@ addEventListener('keydown', ({key}) => {
                 }
             }))
 
-            //console.log(projectiles)
+            
             break
     }
 });
@@ -499,14 +516,14 @@ addEventListener('keydown', ({key}) => {
 addEventListener('keyup', ({key}) => {
     switch (key) {
         case 'ArrowLeft':
-            //console.log('left')
+            
             keys.ArrowLeft.pressed = false;
             break
         case 'ArrowRight':
-            //console.log('right')
+            
             keys.ArrowRight.pressed = false;
         case ' ':
-            //console.log('space')
+            
             break
     }
 });
