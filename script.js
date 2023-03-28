@@ -57,11 +57,13 @@ class Player {
     }
 
     update () {
-        if (this.image) {
+        if (!this.image) return
+
             this.draw()
             this.position.x += this.velocity.x; 
-        }
-    }
+
+        if (this.opacity !== 1) return
+    }; 
 }
 
 class Projectile {
@@ -295,7 +297,8 @@ function init() {
         over: false, 
         active: true
     }
-    pontos = 0
+    pontos = 0;
+    pontosEl.textContent = pontos;
 
     for (let i = 0; i < 100; i++) {  
         particles.push(new Particle({
