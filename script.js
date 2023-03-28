@@ -241,7 +241,7 @@ class Grid {
         this.velocity.y = 0;
 
         if(this.position.x + this.width >= canvas.width || this.position.x <= 0) {
-            this.velocity.x = -this.velocity.x;
+            this.velocity.x = -this.velocity.x * 1.15;
             this.velocity.y = 30;
         };
     }
@@ -308,7 +308,7 @@ function createParticles({object, color, fades}) {
         )
     };    
 }
-
+let spawnBuffer = 500 
 function animate() {
     if (!game.active) return
   requestAnimationFrame(animate)
@@ -454,10 +454,12 @@ function animate() {
     }
 
     if (frames % randomInterval === 0) {
+        spawnBuffer = spawnBuffer < 0 ? 100 : spawnBuffer
         grids.push(new Grid())
-        randomInterval = Math.floor(Math.random() * 500 + 500);
+        randomInterval = Math.floor(Math.random() * 500 + spawnBuffer);
         console.log(randomInterval)
         frames = 0;
+        spawnBuffer -= 100; 
     }
 
     frames++
