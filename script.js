@@ -3,7 +3,7 @@ const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
 canvas.width = 1024;
-canvas.height = 576;  
+canvas.height = 576;
 
 class Player {
     constructor() {
@@ -244,13 +244,13 @@ class Grid {
     }
 }
 
-const player = new Player();
-const projectiles = [];
-const grids = [];
-const InvaderProjectiles = [];
-const particles = [];  
+let player = new Player();
+let projectiles = [];
+let grids = [];
+let InvaderProjectiles = [];
+let particles = [];  
 
-const keys = {
+let keys = {
     ArrowLeft: {
         pressed: false
     },
@@ -267,25 +267,52 @@ let randomInterval = Math.floor(Math.random() * 500 + 500);
 let game = {
     over: false, 
     active: true
-};
+}
 
 let pontos = 0
 
-for (let i = 0; i< 100; i++) {  
-    particles.push(new Particle({
-        position: {
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height
-        }, 
-        velocity: {
-            x: 0,
-            y: 0.3
+function init() {
+    player = new Player();
+    projectiles = [];
+    grids = [];
+    InvaderProjectiles = [];
+    particles = [];  
+
+    keys = {
+        ArrowLeft: {
+            pressed: false
         },
-        radius: Math.random() * 2,
-        color: 'white'
-    })
-    )
-};
+        ArrowRight: {
+            pressed: false
+        },
+        space: {
+            pressed: false
+        }
+    };
+    frames = 0;
+    randomInterval = Math.floor(Math.random() * 500 + 500);
+    game = {
+        over: false, 
+        active: true
+    }
+    pontos = 0
+
+    for (let i = 0; i < 100; i++) {  
+        particles.push(new Particle({
+            position: {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height
+            }, 
+            velocity: {
+                x: 0,
+                y: 0.3
+            },
+            radius: Math.random() * 2,
+            color: 'white'
+        })
+        )
+    };
+}
 
 function createParticles({object, color, fades}) {
     for (let i = 0; i< 15; i++) {  
@@ -311,16 +338,17 @@ function rectangularCollision({rectangle1,rectangle2}) {
 }; 
 
 function endGame() {
-    console.log('Você perdeu!')
+    console.log('Você perdeu')
 
             setTimeout(() => {
-               
+
                player.opacity = 0;
                game.over = true;   
             }, 0)
 
             setTimeout(() => {
-                game.active = false;
+                game.active = false
+                document.querySelector('#restartScreen').style.display = 'flex'
             }, 2000)
 
             createParticles({
@@ -482,7 +510,18 @@ function animate() {
     frames++
 };
 
-animate() 
+document.querySelector('#startButton').addEventListener('click', () => {
+    document.querySelector('#startScreen').style.display = 'none';
+    document.querySelector('#contadorPontos').style.display = 'block';
+    init();
+    animate(); 
+}); 
+
+document.querySelector('#restartButton').addEventListener('click', () => {
+    document.querySelector('#restartScreen').style.display = 'none';
+    init();
+    animate(); 
+}); 
 
 addEventListener('keydown', ({key}) => {
     if (game.over) return 
