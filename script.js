@@ -528,6 +528,7 @@ document.querySelector('#startButton').addEventListener('click', () => {
 
 document.querySelector('#restartButton').addEventListener('click', () => {
     audio.select.play();
+    audio.backgroundMusic.play();
     document.querySelector('#restartScreen').style.display = 'none';
     init();
     animate(); 
