@@ -21,6 +21,7 @@ sound.select = new sound('./audio/select.mp3');
 sound.shoot = new sound('./audio/shoot.mp3'); 
 sound.start = new sound('./audio/start.mp3'); 
 
+
 class Player {
     constructor() {
         
