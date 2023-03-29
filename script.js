@@ -186,7 +186,7 @@ class Invader {
     }
 
     shoot(InvaderProjectiles) {
-        audio.enemyShoot.play()
+        
         InvaderProjectiles.push(new InvaderProjectile({
             position: {
                 x: this.position.x + this.width / 2,
@@ -353,8 +353,7 @@ function rectangularCollision({rectangle1,rectangle2}) {
 
 function endGame() {
     console.log('You Loose')
-    audio.gameOver.play()
-    audio.backgroundMusic.stop()
+    
 
             setTimeout(() => {
 
@@ -484,7 +483,7 @@ function animate() {
                                 fades: true
                             })
 
-                        audio.explode.play()    
+                          
                         grid.invaders.splice(i, 1)
                         projectiles.splice(j, 1)
 
@@ -527,8 +526,7 @@ function animate() {
 };
 
 document.querySelector('#startButton').addEventListener('click', () => {
-    audio.backgroundMusic.play();
-    audio.start.play();
+    
     document.querySelector('#startScreen').style.display = 'none';
     document.querySelector('#contadorPontos').style.display = 'block';
     init();
@@ -536,8 +534,7 @@ document.querySelector('#startButton').addEventListener('click', () => {
 }); 
 
 document.querySelector('#restartButton').addEventListener('click', () => {
-    audio.select.play();
-    audio.backgroundMusic.play();
+    
     document.querySelector('#restartScreen').style.display = 'none';
     init();
     animate(); 
@@ -556,7 +553,7 @@ addEventListener('keydown', ({key}) => {
             break
         case ' ':
             
-            audio.shoot.play()
+            
             projectiles.push(new Projectile({
                 position: {
                     x: player.position.x + player.width / 2,
