@@ -1,9 +1,26 @@
 const pontosEl = document.querySelector('#pontosEl');
 const canvas = document.querySelector('canvas');
-const c = canvas.getContext('2d');
+const c = canvas.getContext('2d'); 
 
 canvas.width = 1024;
 canvas.height = 576;
+
+var backgroundMusic;
+var enemyShoot;
+var explode;
+var gameOver; 
+var select; 
+var shoot;
+var start; 
+
+sound.backgroundMusic = new sound('./audio/backgroundMusic.mp3');
+sound.enemyShoot = new sound('./audio/enemyShoot.mp3'); 
+sound.explode = new sound('./audio/explode.mp3');
+sound.gameOver = new sound('./audio/gameOver.mp3');
+sound.select = new sound('./audio/select.mp3'); 
+sound.shoot = new sound('./audio/shoot.mp3'); 
+sound.start = new sound('./audio/start.mp3'); 
+
 
 class Player {
     constructor() {
@@ -186,7 +203,7 @@ class Invader {
     }
 
     shoot(InvaderProjectiles) {
-        audio.enemyShoot.play()
+        sound.enemyShoot.play();
         InvaderProjectiles.push(new InvaderProjectile({
             position: {
                 x: this.position.x + this.width / 2,
@@ -299,6 +316,8 @@ function init() {
         active: true
     }
     pontos = 0;
+    document.querySelector('#finalScore').innerHTML = pontos;
+    document.querySelector('#pontosEl').innerHTML = pontos;
     pontosEl.textContent = pontos;
 
     for (let i = 0; i < 100; i++) {  
@@ -353,18 +372,21 @@ function rectangularCollision({rectangle1,rectangle2}) {
 
 function endGame() {
     console.log('You Loose')
-    audio.gameOver.play()
-    audio.backgroundMusic.stop()
+    sound.gameOver.play(); 
+    
 
             setTimeout(() => {
 
                player.opacity = 0;
-               game.over = true;   
+               game.over = true;
+               sound.backgroundMusic.stop();
+                  
             }, 0)
 
             setTimeout(() => {
                 game.active = false
                 document.querySelector('#restartScreen').style.display = 'flex'
+                document.querySelector('#finalScore').innerHTML = pontos
             }, 2000)
 
             createParticles({
@@ -484,9 +506,9 @@ function animate() {
                                 fades: true
                             })
 
-                        audio.explode.play()    
-                        grid.invaders.splice(i, 1)
-                        projectiles.splice(j, 1)
+                        sound.explode.play(); 
+                        grid.invaders.splice(i, 1); 
+                        projectiles.splice(j, 1); 
 
                         if (grid.invaders.length > 0) {
                             const firstInvader = grid.invaders[0] 
@@ -527,8 +549,9 @@ function animate() {
 };
 
 document.querySelector('#startButton').addEventListener('click', () => {
-    audio.backgroundMusic.play();
-    audio.start.play();
+    
+    sound.backgroundMusic.play();
+    sound.start.play(); 
     document.querySelector('#startScreen').style.display = 'none';
     document.querySelector('#contadorPontos').style.display = 'block';
     init();
@@ -536,8 +559,8 @@ document.querySelector('#startButton').addEventListener('click', () => {
 }); 
 
 document.querySelector('#restartButton').addEventListener('click', () => {
-    audio.select.play();
-    audio.backgroundMusic.play();
+    sound.select.play();
+    sound.backgroundMusic.play();  
     document.querySelector('#restartScreen').style.display = 'none';
     init();
     animate(); 
@@ -556,7 +579,7 @@ addEventListener('keydown', ({key}) => {
             break
         case ' ':
             
-            audio.shoot.play()
+            sound.shoot.play(); 
             projectiles.push(new Projectile({
                 position: {
                     x: player.position.x + player.width / 2,
