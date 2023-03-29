@@ -2,8 +2,8 @@ const pontosEl = document.querySelector('#pontosEl');
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = 1024;
+canvas.height = 576;
 
 class Player {
     constructor() {
@@ -31,8 +31,6 @@ class Player {
     }
 
     draw() {
-        //c.fillStyle = 'red'
-        //c.fillRect(this.position.x, this.position.y, this.width, this.height)
 
         c.save();
         c.globalAlpha = this.opacity 
@@ -59,11 +57,13 @@ class Player {
     }
 
     update () {
-        if (this.image) {
+        if (!this.image) return
+
             this.draw()
             this.position.x += this.velocity.x; 
-        }
-    }
+
+        if (this.opacity !== 1) return
+    }; 
 }
 
 class Projectile {
@@ -86,6 +86,37 @@ class Projectile {
         this.draw();
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
+    }
+}
+
+class Particle {
+    constructor({position, velocity, radius, color, fades}){
+        this.position = position;
+        this.velocity = velocity;
+
+        this.radius = radius;
+        this.color = color;
+        this.opacity = 1;
+        this.fades = fades
+    }
+
+    draw() {
+        c.save(); 
+        c.globalAlpha = this.opacity 
+        c.beginPath();
+        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+        c.fillStyle = this.color;
+        c.fill();
+        c.closePath();
+        c.restore();
+    }
+
+    update() {
+        this.draw();
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+        if (this.fades)
+        this.opacity -= 0.01;
     }
 }
 
@@ -135,8 +166,7 @@ class Invader {
     }
 
     draw() {
-        //c.fillStyle = 'red'
-        //c.fillRect(this.position.x, this.position.y, this.width, this.height)
+        
 
         c.drawImage(
             this.image, 
@@ -156,6 +186,7 @@ class Invader {
     }
 
     shoot(InvaderProjectiles) {
+        audio.enemyShoot.play()
         InvaderProjectiles.push(new InvaderProjectile({
             position: {
                 x: this.position.x + this.width / 2,
@@ -200,7 +231,7 @@ class Grid {
                 )
             }
         }
-        console.log(this.invaders);
+        
     };
 
     update() {
@@ -210,18 +241,19 @@ class Grid {
         this.velocity.y = 0;
 
         if(this.position.x + this.width >= canvas.width || this.position.x <= 0) {
-            this.velocity.x = -this.velocity.x;
+            this.velocity.x = -this.velocity.x * 1.15;
             this.velocity.y = 30;
         };
     }
 }
 
-const player = new Player();
-const projectiles = [];
-const grids = [];
-const InvaderProjectiles = [];
+let player = new Player();
+let projectiles = [];
+let grids = [];
+let InvaderProjectiles = [];
+let particles = [];  
 
-const keys = {
+let keys = {
     ArrowLeft: {
         pressed: false
     },
@@ -238,21 +270,133 @@ let randomInterval = Math.floor(Math.random() * 500 + 500);
 let game = {
     over: false, 
     active: true
-};
+}
 
 let pontos = 0
 
+function init() {
+    player = new Player();
+    projectiles = [];
+    grids = [];
+    InvaderProjectiles = [];
+    particles = [];  
+
+    keys = {
+        ArrowLeft: {
+            pressed: false
+        },
+        ArrowRight: {
+            pressed: false
+        },
+        space: {
+            pressed: false
+        }
+    };
+    frames = 0;
+    randomInterval = Math.floor(Math.random() * 500 + 500);
+    game = {
+        over: false, 
+        active: true
+    }
+    pontos = 0;
+    pontosEl.textContent = pontos;
+
+    for (let i = 0; i < 100; i++) {  
+        particles.push(new Particle({
+            position: {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height
+            }, 
+            velocity: {
+                x: 0,
+                y: 0.3
+            },
+            radius: Math.random() * 2,
+            color: 'white'
+        })
+        )
+    };
+}
+
+function createParticles({object, color, fades}) {
+    for (let i = 0; i< 15; i++) {  
+        particles.push(new Particle({
+            position: {
+                x: object.position.x + object.width / 2,
+                y: object.position.y + object.height / 2
+            }, 
+            velocity: {
+                x: (Math.random() - 0.5) * 2,
+                y: (Math.random() - 0.5) * 2
+            },
+            radius: Math.random() * 3,
+            color: color || '#27d074',
+            fades
+        })
+        )
+    };    
+}
+
+function rectangularCollision({rectangle1,rectangle2}) {
+        if (!rectangle1 || !rectangle2) {
+        return false;
+        }
+        return(
+            rectangle1.position && rectangle1.position.y !== undefined &&
+            rectangle1.position.y + rectangle1.height >= 
+            rectangle2.position.y && 
+            rectangle1.position.x + rectangle1.width >= 
+            rectangle2.position.x && 
+            rectangle1.position.x <= rectangle2.position.x + rectangle2.width
+        );
+};
+
+function endGame() {
+    console.log('You Loose')
+    audio.gameOver.play()
+    audio.backgroundMusic.stop()
+
+            setTimeout(() => {
+
+               player.opacity = 0;
+               game.over = true;   
+            }, 0)
+
+            setTimeout(() => {
+                game.active = false
+                document.querySelector('#restartScreen').style.display = 'flex'
+            }, 2000)
+
+            createParticles({
+                object: player,
+                color: '#c4c6c9',
+                fades: true
+            })
+}; 
+
+let spawnBuffer = 500 
 function animate() {
     if (!game.active) return
-    let backgroundImage = new Image();
-  backgroundImage.src = './Imagens/space.png';
-  function drawBackground() {
-    c.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-  }
-  requestAnimationFrame(animate);
-  drawBackground();
-  c.clearRect(0, 0, canvas.width, canvas.height);
+  requestAnimationFrame(animate)
+  c.fillStyle = 'black'; 
+  c.fillRect(0, 0, canvas.width, canvas.height)
     player.update();
+    particles.forEach((particle, i) => {
+
+        if (particle.position.y - particle.radius >= canvas.height) {
+            particle.position.x = Math.random() * canvas.width
+            particle.position.y = - particle.radius
+        }
+
+        if (particle.opacity <= 0) {
+            setTimeout(() => {
+                particles.splice(i, 1)
+            }, 0)
+        } else{
+            particle.update();
+        }  
+    })
+
     InvaderProjectiles.forEach((InvaderProjectile, index) => {
         if(InvaderProjectile.position.y + InvaderProjectile.height >= canvas.height) {
             setTimeout(() => {
@@ -260,14 +404,12 @@ function animate() {
             }, 0);
         } else InvaderProjectile.update();
 
-        if(InvaderProjectile.position.y + InvaderProjectile.height >= player.position.y && InvaderProjectile.position.x + InvaderProjectile.width >= player.position.x && InvaderProjectile.position.x <= player.position.x + player.width) {
-            console.log('Você perdeu!')
-            player.opacity = 0;
-            game.over = true;
-
-            setTimeout(() => {
-                game.active = false;
-            }, 1000)
+        if(rectangularCollision({
+            rectangle1: InvaderProjectile,
+            rectangle2: player
+        })) {
+            InvaderProjectiles.splice(index, 1)
+            endGame()
         }  
     });
             
@@ -289,17 +431,25 @@ function animate() {
         if (frames % 100 === 0 && grid.invaders.length > 0) {
             grid.invaders[Math.floor(Math.random() * grid.invaders.length)].shoot(
                 InvaderProjectiles
-                )
+            )
         };
 
         grid.invaders.forEach((invader, i) => {
             invader.update({velocity: grid.velocity})
 
+            if(rectangularCollision({
+                rectangle1: invader,
+                rectangle2: player
+            }) && 
+            !game.over
+            ) 
+                endGame()
+
             projectiles.forEach((projectile, j) => {
                 if (projectile.position.y - projectile.radius <= invader.position.y + invader.height && 
                     projectile.position.x + projectile.radius >= invader.position.x && projectile.position.x - projectile.radius <= invader.position.x + invader.width && projectile.position.y + projectile.radius >= invader.position.y  
                     ) {
-
+                        
                     setTimeout(() => {
                         const invaderFound = grid.invaders.find((invader2) =>
                             invader2 === invader 
@@ -309,9 +459,32 @@ function animate() {
 
                         if (invaderFound && projectileFound) {
                             pontos += 100 
-                            console.log(pontos)
                             pontosEl.innerHTML = pontos
 
+                            const pontosLabel = document.createElement('label');
+                            pontosLabel.innerHTML = 100;
+                            pontosLabel.style.position = 'absolute';
+                            pontosLabel.style.color = 'white';
+                            pontosLabel.style.top = invader.position.y + 'px'; 
+                            pontosLabel.style.left = invader.position.x + 'px';
+                            pontosLabel.style.userSelect = 'none'
+                            document.querySelector('#parentDiv').appendChild(pontosLabel);
+                            
+                            gsap.to(pontosLabel, {
+                                opacity: 0, 
+                                y: -30,
+                                duration: 0.75,
+                                onComplete: () => {
+                                    document.querySelector('#parentDiv').removeChild(pontosLabel)
+                                }
+                            })
+
+                            createParticles({
+                                object: invader,
+                                fades: true
+                            })
+
+                        audio.explode.play()    
                         grid.invaders.splice(i, 1)
                         projectiles.splice(j, 1)
 
@@ -326,9 +499,9 @@ function animate() {
                         }
                         }
                     }, 0)
-                }
-            } )
-        })
+                } 
+            } ); 
+        }) 
     });
 
     if (keys.ArrowLeft.pressed && player.position.x >= 0) {
@@ -343,30 +516,47 @@ function animate() {
     }
 
     if (frames % randomInterval === 0) {
+        spawnBuffer = spawnBuffer < 0 ? 100 : spawnBuffer
         grids.push(new Grid())
-        randomInterval = Math.floor(Math.random() * 500 + 500);
-        console.log(randomInterval)
+        randomInterval = Math.floor(Math.random() * 500 + spawnBuffer);
         frames = 0;
+        spawnBuffer -= 100; 
     }
 
     frames++
 };
 
-animate() 
+document.querySelector('#startButton').addEventListener('click', () => {
+    audio.backgroundMusic.play();
+    audio.start.play();
+    document.querySelector('#startScreen').style.display = 'none';
+    document.querySelector('#contadorPontos').style.display = 'block';
+    init();
+    animate(); 
+}); 
+
+document.querySelector('#restartButton').addEventListener('click', () => {
+    audio.select.play();
+    audio.backgroundMusic.play();
+    document.querySelector('#restartScreen').style.display = 'none';
+    init();
+    animate(); 
+}); 
 
 addEventListener('keydown', ({key}) => {
     if (game.over) return 
     switch (key) {
         case 'ArrowLeft':
-            //console.log('left')
+            
             keys.ArrowLeft.pressed = true;
             break
         case 'ArrowRight':
-            //console.log('right')
+            
             keys.ArrowRight.pressed = true;
             break
         case ' ':
-            //console.log('space')
+            
+            audio.shoot.play()
             projectiles.push(new Projectile({
                 position: {
                     x: player.position.x + player.width / 2,
@@ -378,7 +568,7 @@ addEventListener('keydown', ({key}) => {
                 }
             }))
 
-            //console.log(projectiles)
+            
             break
     }
 });
@@ -386,14 +576,14 @@ addEventListener('keydown', ({key}) => {
 addEventListener('keyup', ({key}) => {
     switch (key) {
         case 'ArrowLeft':
-            //console.log('left')
+            
             keys.ArrowLeft.pressed = false;
             break
         case 'ArrowRight':
-            //console.log('right')
+            
             keys.ArrowRight.pressed = false;
         case ' ':
-            //console.log('space')
+            
             break
     }
 });
