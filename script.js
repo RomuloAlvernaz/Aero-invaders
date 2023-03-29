@@ -338,11 +338,21 @@ function createParticles({object, color, fades}) {
 }
 
 function rectangularCollision({rectangle1,rectangle2}) {
-    return (rectangle1.position.y + rectangle1.height >= rectangle2.position.y && rectangle1.position.x + rectangle1.width >= rectangle2.position.x && rectangle1.position.x <= rectangle2.position.x + rectangle2.width)
-}; 
+        if (!rectangle1 || !rectangle2) {
+        return false;
+        }
+        return(
+            rectangle1.position && rectangle1.position.y !== undefined &&
+            rectangle1.position.y + rectangle1.height >= 
+            rectangle2.position.y && 
+            rectangle1.position.x + rectangle1.width >= 
+            rectangle2.position.x && 
+            rectangle1.position.x <= rectangle2.position.x + rectangle2.width
+        );
+};
 
 function endGame() {
-    console.log('Você perdeu')
+    console.log('You Loose')
     audio.gameOver.play()
     audio.backgroundMusic.stop()
 
@@ -430,7 +440,8 @@ function animate() {
             if(rectangularCollision({
                 rectangle1: invader,
                 rectangle2: player
-            }) && !game.over
+            }) && 
+            !game.over
             ) 
                 endGame()
 
@@ -448,7 +459,6 @@ function animate() {
 
                         if (invaderFound && projectileFound) {
                             pontos += 100 
-                            console.log(pontos)
                             pontosEl.innerHTML = pontos
 
                             const pontosLabel = document.createElement('label');
@@ -509,7 +519,6 @@ function animate() {
         spawnBuffer = spawnBuffer < 0 ? 100 : spawnBuffer
         grids.push(new Grid())
         randomInterval = Math.floor(Math.random() * 500 + spawnBuffer);
-        console.log(randomInterval)
         frames = 0;
         spawnBuffer -= 100; 
     }
