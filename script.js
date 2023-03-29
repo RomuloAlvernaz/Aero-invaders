@@ -299,6 +299,8 @@ function init() {
         active: true
     }
     pontos = 0;
+    document.querySelector('#finalScore').innerHTML = pontos;
+    document.querySelector('#pontosEl').innerHTML = pontos;
     pontosEl.textContent = pontos;
 
     for (let i = 0; i < 100; i++) {  
@@ -364,6 +366,7 @@ function endGame() {
             setTimeout(() => {
                 game.active = false
                 document.querySelector('#restartScreen').style.display = 'flex'
+                document.querySelector('#finalScore').innerHTML = pontos
             }, 2000)
 
             createParticles({
